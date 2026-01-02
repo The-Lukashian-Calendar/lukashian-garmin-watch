@@ -5,8 +5,8 @@ import Toybox.WatchUi;
 
 class LukashianWatchView extends WatchUi.View {
 
-    private const DEBUG as Boolean = true; //TODO turn off
-    private const URL as String = "http://localhost:8080/api/watchinfo/earth"; //TODO real URL
+    private const DEBUG as Boolean = false;
+    private const URL as String = "https://www.lukashian.org/api/watchinfo/earth";
 
     //Note: localEpoch and offsets are specified in seconds, not milliseconds!
     //Note: localEpoch has to correspond with exact start of a day, otherwise time of first day cannot be computed
