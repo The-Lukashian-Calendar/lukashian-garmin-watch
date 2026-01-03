@@ -101,16 +101,20 @@ class LukashianWatchView extends WatchUi.View {
         }
         
         var index = -1;
-        var startOfDay = localEpoch;
-        var endOfDay = localEpoch;
+        var endOfPreviousDay = 0;
+        var startOfDay = 0;
+        var endOfDay = 0;
         
         for (var i = 0; i < offsets.size(); i++) {
-            if (currentTime < localEpoch + offsets[i]) {
+            if (currentTime <= localEpoch + offsets[i]) { //Offset itself marks end of day, and is still included in day itself
                 index = i;
 
-                if (i > 0) {
-                    startOfDay = localEpoch + offsets[i-1];
+                if (i == 0) {
+                    endOfPreviousDay = localEpoch - 1;
+                } else {
+                    endOfPreviousDay = localEpoch + offsets[i-1];
                 }
+                startOfDay = endOfPreviousDay + 1;
                 endOfDay = localEpoch + offsets[i];
 
                 break;
@@ -122,12 +126,13 @@ class LukashianWatchView extends WatchUi.View {
         }
         if (DEBUG) {
             System.println("index: " + index);
+            System.println("endOfPreviousDay: " + endOfPreviousDay);
             System.println("startOfDay: " + startOfDay);
             System.println("endOfDay: " + endOfDay);
         }
 
-        var totalSecondsOfDay = endOfDay - startOfDay;
-        var passedSecondsOfDay = currentTime - startOfDay;
+        var totalSecondsOfDay = endOfDay - endOfPreviousDay;
+        var passedSecondsOfDay = currentTime - startOfDay; //Use startOfDay, in order not to count current second itself as having passed, thereby achieving [0000-9999]
         if (DEBUG) {
             System.println("totalSecondsOfDay: " + totalSecondsOfDay);
             System.println("passedSecondsOfDay: " + passedSecondsOfDay);
