@@ -6,8 +6,8 @@ import Toybox.System;
 (:background)
 class DataLoadingServiceDelegate extends System.ServiceDelegate {
 
-    private const URL as String = "http://localhost:8080/api/watchinfo/earth";
-    //private const URL as String = "https://www.lukashian.org/api/watchinfo/earth";
+    //private const URL as String = "http://localhost:8080/api/watchinfo/earth";
+    private const URL as String = "https://www.lukashian.org/api/watchinfo/earth";
 
     function initialize() {
         ServiceDelegate.initialize();

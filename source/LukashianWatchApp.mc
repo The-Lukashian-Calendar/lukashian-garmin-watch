@@ -3,7 +3,7 @@ import Toybox.Lang;
 import Toybox.System;
 import Toybox.WatchUi;
 
-public const DEBUG as Boolean = true;
+public const DEBUG as Boolean = false;
 public const DATA_KEY as String = "LukashianCalendarData";
 
 (:background)
