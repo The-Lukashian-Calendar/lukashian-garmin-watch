@@ -1,102 +1,48 @@
+import Toybox.Application;
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.System;
 import Toybox.WatchUi;
 
-class LukashianWatchView extends WatchUi.View {
-
-    private const DEBUG as Boolean = false;
-    private const URL as String = "https://www.lukashian.org/api/watchinfo/earth";
-
-    //Note: localEpoch and offsets are specified in seconds, not milliseconds!
-    //Note: localEpoch has to correspond with exact start of a day, otherwise time of first day cannot be computed
-    private var localEpoch as Number = 0;
-    private var offsets as Array<Number> = [];
-    private var days as Array<Number> = [];
-    private var yearsOfDays as Array<Number> = [];
-
-    private var updateTimerSet as Boolean = false;
-    private var isReloading as Boolean = false;
+class LukashianWatchView extends WatchUi.WatchFace {
 
     function initialize() {
-        View.initialize();
-    }
-
-    function onLayout(dc) {
-        if (!updateTimerSet) {
-            var updateTimer = new Timer.Timer();
-            updateTimer.start(method(:timerCallback), 1000, true);
-            updateTimerSet = true;
-        }
-    }
-
-    function timerCallback() as Void {
-        requestUpdate();
-    }
-
-    function reload() as Void {
-        if (DEBUG) {
-            System.println("Reloading...");
-        }
-
-        if (isReloading) {
-            if (DEBUG) {
-                System.println("Reload already in progress");
-            }
-            return;
-        }
-        isReloading = true;
-
-        var options = {
-            :method => Communications.HTTP_REQUEST_METHOD_GET,
-            :headers => { "Content-Type" => Communications.REQUEST_CONTENT_TYPE_URL_ENCODED },
-            :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
-        };
-        var responseCallback = method(:processResponse);
-
-        Communications.makeWebRequest(URL, null, options, responseCallback);
-    }
-
-    function processResponse(responseCode as Number, data as Null or Dictionary or String) as Void {
-        if (DEBUG) {
-            System.println("Processing Response...");
-        }
-
-        if (responseCode != 200 || !(data instanceof Dictionary)) {
-            if (DEBUG) {
-                System.println("Unexpected response: " + responseCode + " " + data);
-            }
-        } else {
-            var response = data as Dictionary;
-            
-            localEpoch = response["localEpoch"];
-            offsets = response["offsets"];
-            days = response["days"];
-            yearsOfDays = response["yearsOfDays"];
-
-            if (DEBUG) {
-                System.println("localEpoch: " + localEpoch);
-                System.println("offsets: " + offsets);
-                System.println("days: " + days);
-                System.println("yearsOfDays: " + yearsOfDays);
-            }
-        }
-
-        isReloading = false;
+        WatchFace.initialize();
     }
 
     function onUpdate(dc as Dc) as Void {
         if (DEBUG) {
             System.println("Updating...");
         }
+        
+        var data = Storage.getValue(DATA_KEY);
 
-        if (localEpoch == 0) {
-            reload();
+        if (!(data instanceof Dictionary)) {
+            Background.registerForTemporalEvent(Time.now());
             return;
         }
+        if (!data.hasKey("localEpoch")) {
+            Background.registerForTemporalEvent(Time.now());
+            return;
+        }
+        
+        //Note: localEpoch and offsets are specified in seconds, not milliseconds
+        //Note: localEpoch has to correspond with exact start of a day, otherwise time of first day cannot be computed
+        var localEpoch = data["localEpoch"] as Number;
+        var firstDayNumber = data["firstDayNumber"] as Number;
+        var firstYearOfDayNumber = data["firstYearOfDayNumber"] as Number;
+        var nextYearStartIndex = data["nextYearStartIndex"] as Number;
+        var offsets = data["offsets"] as Array<Number>;
 
         var currentTime = Time.now().value();
+
         if (DEBUG) {
+            System.println("localEpoch: " + localEpoch);
+            System.println("firstDayNumber: " + firstDayNumber);
+            System.println("firstYearOfDayNumber: " + firstYearOfDayNumber);
+            System.println("nextYearStartIndex: " + nextYearStartIndex);
+            System.println("offsets: " + offsets);
+
             System.println("currentTime: " + currentTime);
         }
         
@@ -121,7 +67,7 @@ class LukashianWatchView extends WatchUi.View {
             }
         }
         if (index == -1) {
-            reload();
+            Background.registerForTemporalEvent(Time.now());
             return;
         }
         if (DEBUG) {
@@ -143,8 +89,15 @@ class LukashianWatchView extends WatchUi.View {
             System.println("proportionPassed: " + proportionPassed);
         }
 
+        var day = index < nextYearStartIndex ? (firstDayNumber + index) : (index - nextYearStartIndex + 1);
+        var year = index < nextYearStartIndex ? firstYearOfDayNumber : (firstYearOfDayNumber + 1);
+        if (DEBUG) {
+            System.println("day: " + day);
+            System.println("year: " + year);
+        }
+
         var timeString = proportionPassed.format("%04d");
-        var dateString = days[index] + " - " + yearsOfDays[index];
+        var dateString = day + " - " + year;
 
         var center = dc.getWidth() / 2;
         var middle = dc.getHeight() / 2;
