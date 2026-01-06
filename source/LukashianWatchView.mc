@@ -111,13 +111,22 @@ class LukashianWatchView extends WatchUi.WatchFace {
         var timeString = proportionPassed.format("%04d");
         var dateString = day + " - " + year;
 
-        var center = dc.getWidth() / 2;
-        var middle = dc.getHeight() / 2;
-
         dc.setColor(Graphics.COLOR_WHITE, Graphics.createColor(0, 0, 4, 61));
         dc.clear();
 
-        dc.drawText(center, middle - 90, Graphics.FONT_SYSTEM_NUMBER_HOT, timeString, Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(center, middle + 40, Graphics.FONT_SYSTEM_SMALL, dateString, Graphics.TEXT_JUSTIFY_CENTER);
+        var timeFont = Graphics.FONT_SYSTEM_NUMBER_HOT;
+        var dateFont = Graphics.FONT_SYSTEM_SMALL;
+        var timeHeight = Graphics.getFontHeight(timeFont) - Graphics.getFontDescent(timeFont);
+        var dateHeight = Graphics.getFontHeight(dateFont) - Graphics.getFontDescent(dateFont);
+        
+        var marginBetweenTimeAndDate = dateHeight * 0.7;
+        var offsetTop = marginBetweenTimeAndDate / 2;
+
+        var center = dc.getWidth() / 2;
+        var middle = dc.getHeight() / 2;
+
+        //Y-Coordinate of text is at the top of the text
+        dc.drawText(center, offsetTop + middle - timeHeight, timeFont, timeString, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(center, offsetTop + middle + marginBetweenTimeAndDate, dateFont, dateString, Graphics.TEXT_JUSTIFY_CENTER);
     }
 }
