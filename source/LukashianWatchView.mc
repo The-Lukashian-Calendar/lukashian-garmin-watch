@@ -10,6 +10,18 @@ class LukashianWatchView extends WatchUi.WatchFace {
         WatchFace.initialize();
     }
 
+    function reload() as Void {
+        //This will schedule a temporal event as soon as possible:
+        //either now, or 5 minutes after the last one, which might be in the past,
+        //in which case it will be executed immediately
+        var lastTime = Background.getLastTemporalEventTime();
+        if (lastTime == null) {
+            Background.registerForTemporalEvent(Time.now());
+        } else {
+            Background.registerForTemporalEvent(lastTime.add(new Time.Duration(5 * 60)));
+        }
+    }
+
     function onUpdate(dc as Dc) as Void {
         if (DEBUG) {
             System.println("Updating...");
@@ -18,11 +30,11 @@ class LukashianWatchView extends WatchUi.WatchFace {
         var data = Storage.getValue(DATA_KEY);
 
         if (!(data instanceof Dictionary)) {
-            Background.registerForTemporalEvent(Time.now());
+            reload();
             return;
         }
         if (!data.hasKey("localEpoch")) {
-            Background.registerForTemporalEvent(Time.now());
+            reload();
             return;
         }
         
@@ -67,7 +79,7 @@ class LukashianWatchView extends WatchUi.WatchFace {
             }
         }
         if (index == -1) {
-            Background.registerForTemporalEvent(Time.now());
+            reload();
             return;
         }
         if (DEBUG) {
