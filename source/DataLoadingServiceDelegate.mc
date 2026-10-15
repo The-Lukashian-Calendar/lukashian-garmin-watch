@@ -6,8 +6,8 @@ import Toybox.System;
 (:background)
 class DataLoadingServiceDelegate extends System.ServiceDelegate {
 
-    //private const URL as String = "http://localhost:8080/api/watchinfo/earth";
-    private const URL as String = "https://www.lukashian.org/api/watchinfo/earth";
+    //private const URL as String = "http://localhost:8080/api/watchinfo/";
+    private const URL as String = "https://www.lukashian.org/api/watchinfo/";
 
     function initialize() {
         ServiceDelegate.initialize();
@@ -25,7 +25,13 @@ class DataLoadingServiceDelegate extends System.ServiceDelegate {
         };
         var responseCallback = method(:processResponse);
 
-        Communications.makeWebRequest(URL, null, options, responseCallback);
+        var instance = Application.Properties.getValue("instance");
+        var url = URL + (instance == 0 ? "earth" : "mars");
+
+        if (DEBUG) {
+            System.println("Making request to " + url);
+        }
+        Communications.makeWebRequest(url, null, options, responseCallback);
     }
 
     function processResponse(responseCode as Number, data as Null or Dictionary or String) as Void {

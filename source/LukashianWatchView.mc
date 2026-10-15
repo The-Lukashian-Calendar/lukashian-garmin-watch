@@ -6,11 +6,9 @@ import Toybox.WatchUi;
 
 class LukashianWatchView extends WatchUi.WatchFace {
 
-    function initialize() {
-        WatchFace.initialize();
-    }
+    private var previousInstance = null;
 
-    function reload() as Void {
+    private function reloadData() as Void {
         //This will schedule a temporal event as soon as possible:
         //either now, or 5 minutes after the last one, which might be in the past,
         //in which case it will be executed immediately
@@ -22,19 +20,33 @@ class LukashianWatchView extends WatchUi.WatchFace {
         }
     }
 
+    function initialize() {
+        WatchFace.initialize();
+    }
+
     function onUpdate(dc as Dc) as Void {
         if (DEBUG) {
             System.println("Updating...");
+        }
+
+        var instance = Application.Properties.getValue("instance");
+        if (DEBUG) {
+            System.println("Instance: " + instance + "; Previous instance: " + previousInstance);
+        }
+        if (instance != previousInstance) {
+            previousInstance = instance;
+            reloadData();
+            return;
         }
         
         var data = Storage.getValue(DATA_KEY);
 
         if (!(data instanceof Dictionary)) {
-            reload();
+            reloadData();
             return;
         }
         if (!data.hasKey("localEpoch")) {
-            reload();
+            reloadData();
             return;
         }
         
@@ -79,7 +91,7 @@ class LukashianWatchView extends WatchUi.WatchFace {
             }
         }
         if (index == -1) {
-            reload();
+            reloadData();
             return;
         }
         if (DEBUG) {

@@ -1,0 +1,8 @@
+<settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+    <setting propertyKey="@Properties.instance" title="@Strings.Location" prompt="@Strings.ChooseLocation">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.Earth</listEntry>
+            <listEntry value="1">@Strings.Mars</listEntry>
+        </settingConfig>
+    </setting>
+</settings>

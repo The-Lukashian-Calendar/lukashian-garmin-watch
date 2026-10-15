@@ -1,3 +1,7 @@
 <strings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
     <string id="AppName">Lukashian Calendar Watch</string>
+    <string id="Location">Location</string>
+    <string id="ChooseLocation">Choose a location (might take up to 5 minutes to update)</string>
+    <string id="Earth">Earth</string>
+    <string id="Mars">Mars</string>
 </strings>
